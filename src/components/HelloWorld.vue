@@ -1,48 +1,5 @@
 <template>
   <div class="about">
-    <!-- <div>
-      <span class="demonstration">date</span>
-      <el-date-picker
-        v-model="value1"
-        type="date"
-        placeholder="Pick a date"
-        :default-value="new Date(2010, 9, 1)"
-        format="YYYY 年 MM 月 DD 日"
-        @change="dateChange2"
-      >
-      </el-date-picker>
-    </div>
-    <el-date-picker
-      v-model="value2"
-      type="daterange"
-      unlink-panels
-      range-separator="至"
-      start-placeholder="开始月份"
-      end-placeholder="结束月份"
-      :shortcuts="shortcuts"
-      :default-value="[new Date(2010, 9, 1), new Date(2010, 10, 1)]"
-      @change="dateChange"
-    >
-    </el-date-picker>
-    <el-time-select
-      v-model="timeValue"
-      start="08:30"
-      step="00:15"
-      end="18:30"
-      placeholder="选择时间"
-      @change="timeChange"
-    >
-    </el-time-select>
-    <div>
-      <el-transfer
-        v-model="transferValue"
-        :props="{
-          key: 'value',
-          label: 'desc',
-        }"
-        :data="list"
-      />
-    </div> -->
     <div>----------------------------------------------------------------------------</div>
     <!-- <textarea id="vue-tinymce-1634882069110995" class="tinymce-textarea" /> -->
     <div class="tinymce-container">
@@ -53,14 +10,13 @@
     </div>
 
     <div v-html='editValue'></div>
-
+    <div>{{nodes}}</div>
     <div @click="submit">提交</div>
   </div>
 </template>
 
 <script lang="ts">
 import { ref } from "vue";
-import { ElMessage } from "element-plus";
 export default {
   setup() {
     // 单选日期
@@ -75,10 +31,6 @@ export default {
     const dateChange = (v: Date[]) => {
       console.log(value2.value, v);
       open(value2.value[0].toString());
-    };
-
-    const open = (e: string) => {
-      ElMessage(e);
     };
 
     let timeValue = ref("9:30");
@@ -193,6 +145,7 @@ export default {
     });
     const editValue = ref()
     const tinymceId = 'vue-tinymce-1634882069110995'
+    const nodes = ref()
     function initTinymce() {
       (window as any).tinymce.init({
         language: "zh_CN",
@@ -222,12 +175,13 @@ export default {
             // console.log('NodeChange Change KeyUp SetContent')
             editValue.value = editor.getContent()
             console.log(editValue.value)
-            const nodes = parseChildren({
+            nodes.value = parseChildren({
               source: editValue.value,
               options: {
                 isPreTag: (tag: string) => tag === 'pre',
               }
             }, 0 /* DATA */, [])
+            
             // this.hasChange = true
             // this.$emit('input', editor.getContent())
           })
@@ -636,7 +590,8 @@ export default {
       list,
       imageSuccessCBK,
       editValue,
-      submit
+      submit,
+      nodes
     };
   },
   // components: {
