@@ -5,3 +5,5 @@
 富文本编译器使用：tinymce
 
 使用vue3部分编译源码。
+
+仿照 https://github.com/ianzhi/wxParse
