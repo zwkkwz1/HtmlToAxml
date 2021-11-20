@@ -1,6 +1,8 @@
 <template>
+  <div>
+    <video controls="" autoplay="" name="media"><source src="https://vd4.bdstatic.com/mda-mkfjwsq9iw92852q/sc/cae_h264_clips/1637073272506051787/mda-mkfjwsq9iw92852q.mp4?auth_key=1637289609-0-0-010f6ce919b92255434cbad07c75c29c&amp;amp;bcevod_channel=searchbox_feed&amp;amp;pd=1&amp;amp;pt=3&amp;amp;abtest=&amp;amp;klogid=0609533200" type="video/mp4"></video>
+  </div>
   <div class="about">
-    <div>----------------------------------------------------------------------------</div>
     <!-- <textarea id="vue-tinymce-1634882069110995" class="tinymce-textarea" /> -->
     <div class="tinymce-container">
       <textarea id="vue-tinymce-1634882069110995" class="tinymce-textarea" />
@@ -9,14 +11,18 @@
       </div>
     </div>
 
-    <div v-html='editValue'></div>
-    <div>{{nodes}}</div>
+    <textarea class="nodes-box" v-model="nodes.orgstr" cols="30" rows="10"></textarea>
+    <textarea class="nodes-box" v-model="nodes.strNodes" cols="30" rows="10"></textarea>
     <div @click="submit">提交</div>
   </div>
+  <div v-html='editValue'></div>
+
+  <pre style="height: 500px; width: 40%" id='jsonShow'>
+  </pre>
 </template>
 
 <script lang="ts">
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 export default {
   setup() {
     // 单选日期
@@ -145,7 +151,12 @@ export default {
     });
     const editValue = ref()
     const tinymceId = 'vue-tinymce-1634882069110995'
-    const nodes = ref()
+    const nodes = reactive({
+      value: {},
+      orgstr: '',
+      strNodes: '',
+      jsonNodes: ''
+    })
     function initTinymce() {
       (window as any).tinymce.init({
         language: "zh_CN",
@@ -175,13 +186,18 @@ export default {
             // console.log('NodeChange Change KeyUp SetContent')
             editValue.value = editor.getContent()
             console.log(editValue.value)
-            nodes.value = parseChildren({
+            nodes.orgstr = editValue.value
+            const v = parseChildren({
               source: editValue.value,
               options: {
                 isPreTag: (tag: string) => tag === 'pre',
               }
             }, 0 /* DATA */, [])
-            
+            nodes.value = v
+            traverser(v, traverserMethods)
+            nodes.strNodes = JSON.stringify(v)
+            nodes.jsonNodes = jsonShowFn(JSON.stringify(v))
+            document.getElementById('jsonShow').innerHTML = nodes.jsonNodes
             // this.hasChange = true
             // this.$emit('input', editor.getContent())
           })
@@ -578,6 +594,104 @@ export default {
       // }
     }
 
+    function jsonShowFn(json){
+        // debugger
+        // if (!json.match("^\{(.+:.+,*){1,}\}$")) {
+        //     return json           //判断是否是json数据，不是直接返回
+        // }
+        if (typeof json != 'string') {
+            json = JSON.stringify(json, undefined, 2);
+        }
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+            var cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+
+    /// transformation
+    function traverserPre(ast) {
+      ast.forEach(node => {
+        if (node.children) {
+          node.nodes = node.children
+          delete node.children
+        }
+      });
+    }
+    function traverser(ast, visitor) {
+      // `traverseArray` 函数允许我们对数组中的每一个元素调用 `traverseNode` 函数。
+      function traverseArray(array, parent) { // zwk ::: vue 也是给每一项用转换函数
+        array.forEach(function(child) {
+          traverseNode(child, parent);
+        });
+      }
+
+      // `traverseNode` 函数接受一个 `node` 和它的父结点 `parent` 作为参数，这个结点会被
+      // 传入到 visitor 中相应的处理函数那里。
+      function traverseNode(node, parent) {
+        var method = visitor[node.type]; 
+        if (method) {
+          method(node, parent); 
+        }
+        switch (node.type) {
+          case 1:
+            traverseArray(node.children, node);
+            break;
+          case 2:
+            traverseArray(node.children, node);
+            break;
+          default:
+            throw new TypeError(node.type);
+        }
+      }
+      traverseArray(ast, {
+        children: ast
+      });
+    }
+    function makeMap(str: string) {
+      var obj = {}, items = str.split(",");
+      for (var i = 0; i < items.length; i++)
+        obj[items[i]] = true;
+      return obj;
+    }
+    const elements = {
+      empty: makeMap("o:p,area,base,basefont,br,col,frame,hr,img,input,link,meta,param,embed,command,keygen,source,track,wbr"),
+      block: makeMap("a,address,article,applet,aside,audio,blockquote,button,canvas,center,dd,del,dir,div,dl,dt,fieldset,figcaption,figure,footer,form,frameset,h1,h2,h3,h4,h5,h6,header,hgroup,hr,iframe,ins,isindex,li,map,menu,noframes,noscript,object,ol,output,p,section,script,table,tbody,td,tfoot,th,thead,tr,ul,video"),
+      inline: makeMap("ruby,rp,rt,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var,pre,code"),
+      closeSelf: makeMap("colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr"),
+      fillAttrs: makeMap("checked,compact,declare,defer,disabled,ismap,multiple,nohref,noresize,noshade,nowrap,readonly,selected"),
+      special: makeMap("script,style,view,scroll-view,block,code")
+    }
+    const traverserMethods = {
+      1: (node, parent, chlidrenKen = 'nodes') => {
+        let tagType = ''
+        // 获取 tagType
+        Object.keys(elements).some(key => {
+          if (elements[key][node.tag]) {
+            tagType = key
+            return true
+          }
+        })
+        node.node = "element"
+        node.tagType = tagType
+        // if (!parent[chlidrenKen]) {
+        //   parent[chlidrenKen] = []
+        // }
+        // parent[chlidrenKen].push(r)
+      }
+    }
+
     return {
       value1,
       value2,
@@ -600,11 +714,15 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+.about {
+  display: flex;
+  justify-content: space-between;
+}
 .tinymce-container {
   position: relative;
   line-height: normal;
-  width: 375px;
+  /* width: 375px; */
 }
 
 /* .tinymce-container {
@@ -635,20 +753,16 @@ export default {
 .editor-upload-btn {
   display: inline-block;
 }
+
+.nodes-box {
+  width: 50%;
+  margin: 0 10px;
+}
+
+pre {outline: 1px solid #ccc; }
+ .string { color: green; }
+ .number { color: darkorange; }
+ .boolean { color: blue; }
+ .null { color: magenta; }
+ .key { color: red; }
 </style>
-
-function arr(arr: any) {
-  throw new Error('Function not implemented.');
-}
-
-function imageSuccessCBK(arr: any) {
-  throw new Error('Function not implemented.');
-}
-
-function imageSuccessCBK(arr: any) {
-  throw new Error('Function not implemented.');
-}
-
-function arr(arr: any) {
-  throw new Error('Function not implemented.');
-}
