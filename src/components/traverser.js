@@ -80,9 +80,9 @@ const traverserMethods = {
     // }
     // parent[chlidrenKen].push(r)
   },
-  // 只支持click、style、id、class属性
   // TODO class变成style
 }
+// 只支持click、style、id、class、href、 str属性
 function orderProps(node) {
   if (node.props && node.props.length > 0) {
     // TODO 处理 class
