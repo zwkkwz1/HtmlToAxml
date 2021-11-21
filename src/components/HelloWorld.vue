@@ -10,8 +10,8 @@
         <editorImage color="#1890ff" class="editor-upload-btn" @successCBK="imageSuccessCBK" />
       </div>
     </div>
-
     <textarea class="nodes-box" v-model="nodes.orgstr" cols="30" rows="10"></textarea>
+    <textarea class="nodes-box" v-model="nodes.orgstrNodes" cols="30" rows="10"></textarea>
     <textarea class="nodes-box" v-model="nodes.strNodes" cols="30" rows="10"></textarea>
     <div @click="submit">提交</div>
   </div>
@@ -23,6 +23,7 @@
 
 <script lang="ts">
 import { reactive, ref } from "vue";
+import { traverser } from './traverser'
 export default {
   setup() {
     // 单选日期
@@ -154,6 +155,7 @@ export default {
     const nodes = reactive({
       value: {},
       orgstr: '',
+      orgstrNodes: '',
       strNodes: '',
       jsonNodes: ''
     })
@@ -194,7 +196,8 @@ export default {
               }
             }, 0 /* DATA */, [])
             nodes.value = v
-            traverser(v, traverserMethods)
+            nodes.orgstrNodes = JSON.stringify(v)
+            traverser(v)
             nodes.strNodes = JSON.stringify(v)
             nodes.jsonNodes = jsonShowFn(JSON.stringify(v))
             document.getElementById('jsonShow').innerHTML = nodes.jsonNodes
@@ -481,9 +484,205 @@ export default {
       }
     }
     function parseAttributes(context: any, type: number) {
-      // TODO 
-      return [];
+      const props = [];
+      const attributeNames = new Set();
+      while (context.source.length > 0 &&
+        !startsWith(context.source, '>') &&
+        !startsWith(context.source, '/>')) {
+        if (startsWith(context.source, '/')) {
+          // emitError(context, 22 /* UNEXPECTED_SOLIDUS_IN_TAG */);
+          advanceBy(context, 1);
+          advanceSpaces(context);
+          continue;
+        }
+        if (type === 1 /* End */) {
+          // emitError(context, 3 /* END_TAG_WITH_ATTRIBUTES */);
+        }
+        const attr = parseAttribute(context, attributeNames);
+        if (type === 0 /* Start */) {
+          props.push(attr);
+        }
+        // if (/^[^\t\r\n\f />]/.test(context.source)) {
+        //   emitError(context, 15 /* MISSING_WHITESPACE_BETWEEN_ATTRIBUTES */);
+        // }
+        advanceSpaces(context);
+      }
+      return props;
     }
+    function parseAttribute(context: any, nameSet) {
+      // Name.
+      // const start = getCursor(context);
+      const match = /^[^\t\r\n\f />][^\t\r\n\f />=]*/.exec(context.source);
+      const name = match[0];
+      // if (nameSet.has(name)) {
+      //   emitError(context, 2 /* DUPLICATE_ATTRIBUTE */);
+      // }
+      nameSet.add(name);
+      // if (name[0] === '=') {
+      //   emitError(context, 19 /* UNEXPECTED_EQUALS_SIGN_BEFORE_ATTRIBUTE_NAME */);
+      // }
+      // {
+      //   const pattern = /["'<]/g;
+      //   let m;
+      //   while ((m = pattern.exec(name))) {
+      //     emitError(context, 17 /* UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME */, m.index);
+      //   }
+      // }
+      advanceBy(context, name.length);
+      // Value
+      let value = undefined;
+      if (/^[\t\r\n\f ]*=/.test(context.source)) {
+        advanceSpaces(context);
+        advanceBy(context, 1);
+        advanceSpaces(context);
+        value = parseAttributeValue(context);
+        // if (!value) {
+        //   emitError(context, 13 /* MISSING_ATTRIBUTE_VALUE */);
+        // }
+      }
+      // const loc = getSelection(context, start);
+      // if (!context.inVPre && /^(v-|:|@|#)/.test(name)) {
+      //   const match = /(?:^v-([a-z0-9-]+))?(?:(?::|^@|^#)(\[[^\]]+\]|[^\.]+))?(.+)?$/i.exec(name);
+      //   let dirName = match[1] ||
+      //     (startsWith(name, ':') ? 'bind' : startsWith(name, '@') ? 'on' : 'slot');
+      //   let arg;
+      //   if (match[2]) {
+      //     const isSlot = dirName === 'slot';
+      //     const startOffset = name.lastIndexOf(match[2]);
+      //     // const loc = getSelection(context, getNewPosition(context, start, startOffset), getNewPosition(context, start, startOffset + match[2].length + ((isSlot && match[3]) || '').length));
+      //     let content = match[2];
+      //     let isStatic = true;
+      //     if (content.startsWith('[')) {
+      //       isStatic = false;
+      //       // if (!content.endsWith(']')) {
+      //       //   emitError(context, 26 /* X_MISSING_DYNAMIC_DIRECTIVE_ARGUMENT_END */);
+      //       // }
+      //       content = content.substr(1, content.length - 2);
+      //     }
+      //     else if (isSlot) {
+      //       // #1241 special case for v-slot: vuetify relies extensively on slot
+      //       // names containing dots. v-slot doesn't have any modifiers and Vue 2.x
+      //       // supports such usage so we are keeping it consistent with 2.x.
+      //       content += match[3] || '';
+      //     }
+      //     arg = {
+      //       type: 4 /* SIMPLE_EXPRESSION */,
+      //       content,
+      //       isStatic,
+      //       constType: isStatic
+      //         ? 3 /* CAN_STRINGIFY */
+      //         : 0 /* NOT_CONSTANT */,
+      //       // loc
+      //     };
+      //   }
+      //   if (value && value.isQuoted) {
+      //     const valueLoc = value.loc;
+      //     // valueLoc.start.offset++;
+      //     // valueLoc.start.column++;
+      //     // valueLoc.end = advancePositionWithClone(valueLoc.start, value.content);
+      //     valueLoc.source = valueLoc.source.slice(1, -1);
+      //   }
+      //   const modifiers = match[3] ? match[3].substr(1).split('.') : [];
+      //   return {
+      //     type: 7 /* DIRECTIVE */,
+      //     name: dirName,
+      //     exp: value && {
+      //       type: 4 /* SIMPLE_EXPRESSION */,
+      //       content: value.content,
+      //       isStatic: false,
+      //       // Treat as non-constant by default. This can be potentially set to
+      //       // other values by `transformExpression` to make it eligible for hoisting.
+      //       constType: 0 /* NOT_CONSTANT */,
+      //       loc: value.loc
+      //     },
+      //     arg,
+      //     modifiers,
+      //     // loc
+      //   };
+      // }
+      return {
+        type: 6 /* ATTRIBUTE */,
+        name,
+        value: value && {
+          type: 2 /* TEXT */,
+          content: value.content,
+          loc: value.loc
+        },
+        // loc
+      };
+    }
+    const extend = Object.assign;
+    function advancePositionWithClone(pos, source, numberOfCharacters = source.length) {
+      return advancePositionWithMutation(extend({}, pos), source, numberOfCharacters);
+    }
+    // function getNewPosition(context, start, numberOfCharacters) {
+    //   return advancePositionWithClone(start, context.originalSource.slice(start.offset, numberOfCharacters), numberOfCharacters);
+    // }
+    function advancePositionWithMutation(pos, source, numberOfCharacters = source.length) {
+      let linesCount = 0;
+      let lastNewLinePos = -1;
+      for (let i = 0; i < numberOfCharacters; i++) {
+        if (source.charCodeAt(i) === 10 /* newline char code */) {
+          linesCount++;
+          lastNewLinePos = i;
+        }
+      }
+      pos.offset += numberOfCharacters;
+      pos.line += linesCount;
+      pos.column =
+        lastNewLinePos === -1
+          ? pos.column + numberOfCharacters
+          : numberOfCharacters - lastNewLinePos;
+      return pos;
+    }
+    function getCursor(context) {
+      const { column, line, offset } = context;
+      return { column, line, offset };
+    }
+    function parseAttributeValue(context) {
+      const start = getCursor(context);
+      let content;
+      const quote = context.source[0];
+      const isQuoted = quote === `"` || quote === `'`;
+      if (isQuoted) {
+        // Quoted value.
+        advanceBy(context, 1);
+        const endIndex = context.source.indexOf(quote);
+        if (endIndex === -1) {
+          content = parseTextData(context, context.source.length, 4 /* ATTRIBUTE_VALUE */);
+        }
+        else {
+          content = parseTextData(context, endIndex, 4 /* ATTRIBUTE_VALUE */);
+          advanceBy(context, 1);
+        }
+      }
+      else {
+        // Unquoted
+        const match = /^[^\t\r\n\f >]+/.exec(context.source);
+        if (!match) {
+          return undefined;
+        }
+        const unexpectedChars = /["'<=`]/g;
+        let m;
+        // while ((m = unexpectedChars.exec(match[0]))) {
+        //   emitError(context, 18 /* UNEXPECTED_CHARACTER_IN_UNQUOTED_ATTRIBUTE_VALUE */, m.index);
+        // }
+        content = parseTextData(context, match[0].length, 4 /* ATTRIBUTE_VALUE */);
+      }
+      return {
+        content,
+        isQuoted,
+        // loc: getSelection(context, start)
+      };
+    }
+    // function getSelection(context, start, end?) {
+    //   end = end || getCursor(context);
+    //   return {
+    //     start,
+    //     end,
+    //     source: context.originalSource.slice(start.offset, end.offset)
+    //   };
+    // }
     function startsWith(source: string, searchString: string) {
       return source.startsWith(searchString);
     }
@@ -621,76 +820,6 @@ export default {
     }
 
     /// transformation
-    function traverserPre(ast) {
-      ast.forEach(node => {
-        if (node.children) {
-          node.nodes = node.children
-          delete node.children
-        }
-      });
-    }
-    function traverser(ast, visitor) {
-      // `traverseArray` 函数允许我们对数组中的每一个元素调用 `traverseNode` 函数。
-      function traverseArray(array, parent) { // zwk ::: vue 也是给每一项用转换函数
-        array.forEach(function(child) {
-          traverseNode(child, parent);
-        });
-      }
-
-      // `traverseNode` 函数接受一个 `node` 和它的父结点 `parent` 作为参数，这个结点会被
-      // 传入到 visitor 中相应的处理函数那里。
-      function traverseNode(node, parent) {
-        var method = visitor[node.type]; 
-        if (method) {
-          method(node, parent); 
-        }
-        switch (node.type) {
-          case 1:
-            traverseArray(node.children, node);
-            break;
-          case 2:
-            traverseArray(node.children, node);
-            break;
-          default:
-            throw new TypeError(node.type);
-        }
-      }
-      traverseArray(ast, {
-        children: ast
-      });
-    }
-    function makeMap(str: string) {
-      var obj = {}, items = str.split(",");
-      for (var i = 0; i < items.length; i++)
-        obj[items[i]] = true;
-      return obj;
-    }
-    const elements = {
-      empty: makeMap("o:p,area,base,basefont,br,col,frame,hr,img,input,link,meta,param,embed,command,keygen,source,track,wbr"),
-      block: makeMap("a,address,article,applet,aside,audio,blockquote,button,canvas,center,dd,del,dir,div,dl,dt,fieldset,figcaption,figure,footer,form,frameset,h1,h2,h3,h4,h5,h6,header,hgroup,hr,iframe,ins,isindex,li,map,menu,noframes,noscript,object,ol,output,p,section,script,table,tbody,td,tfoot,th,thead,tr,ul,video"),
-      inline: makeMap("ruby,rp,rt,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var,pre,code"),
-      closeSelf: makeMap("colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr"),
-      fillAttrs: makeMap("checked,compact,declare,defer,disabled,ismap,multiple,nohref,noresize,noshade,nowrap,readonly,selected"),
-      special: makeMap("script,style,view,scroll-view,block,code")
-    }
-    const traverserMethods = {
-      1: (node, parent, chlidrenKen = 'nodes') => {
-        let tagType = ''
-        // 获取 tagType
-        Object.keys(elements).some(key => {
-          if (elements[key][node.tag]) {
-            tagType = key
-            return true
-          }
-        })
-        node.node = "element"
-        node.tagType = tagType
-        // if (!parent[chlidrenKen]) {
-        //   parent[chlidrenKen] = []
-        // }
-        // parent[chlidrenKen].push(r)
-      }
-    }
 
     return {
       value1,
