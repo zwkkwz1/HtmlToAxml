@@ -240,16 +240,16 @@ const vStyleNodes = [
       content: "text-decoration: underline; background-color: #00ffff;",
     },
   },
-]
+];
 
 const wxAttrNodes = {
   tagType: "inline",
   styleStr: "text-decoration: underline; background-color: #00ffff;",
-  classStr: 'test',
+  classStr: "test",
   attr: {
     style: ["text-decoration:", "underline;", "background-color:", "#00ffff;"], // attr.style似乎是没用的
-    class: ['test']
-  }
+    class: ["test"],
+  },
 };
 
 var a = [
@@ -276,6 +276,96 @@ var a = [
         ],
         isSelfClosing: false,
         children: [{ type: 2, content: "123" }],
+      },
+    ],
+  },
+];
+// <video controls="controls" width="300" height="150">
+const vNodes5 = [
+  {
+    type: 1,
+    tag: "p",
+    node: "element",
+    tagType: "closeSelf",
+    props: [],
+    isSelfClosing: false,
+    children: [
+      {
+        type: 1,
+        tag: "video",
+        node: "element",
+        tagType: "block",
+        isSelfClosing: false,
+        children: [
+          {
+            type: 1,
+            tag: "source",
+            node: "element",
+            tagType: "empty",
+            props: [
+              {
+                type: 6,
+                name: "src",
+                value: {
+                  type: 2,
+                  content:
+                    "https://vd4.bdstatic.com/mda-mkm48rdgkc8webrb/sc/cae_h264_clips/1637550577273483133/mda-mkm48rdgkc8webrb.mp4?auth_key=1637562663-0-0-bfeaf33b14c26148cee480ccbbea98e1&amp;bcevod_channel=searchbox_feed&amp;pd=1&amp;pt=3&amp;abtest=&amp;klogid=0063846881",
+                },
+              },
+            ],
+            isSelfClosing: true,
+            children: [],
+          },
+          {
+            node: "text",
+            text: "\n",
+            textArray: [{ node: "text", text: "\n" }],
+          },
+        ],
+        attr: {
+          controls: "controls",
+          width: "300",
+          height: "150",
+          src: "https://vd4.bdstatic.com/mda-mkm48rdgkc8webrb/sc/cae_h264_clips/1637550577273483133/mda-mkm48rdgkc8webrb.mp4?auth_key=1637562663-0-0-bfeaf33b14c26148cee480ccbbea98e1&amp;bcevod_channel=searchbox_feed&amp;pd=1&amp;pt=3&amp;abtest=&amp;klogid=0063846881",
+        },
+      },
+    ],
+  },
+];
+const wxNodes5 = [
+  {
+    node: "element",
+    tag: "p",
+    index: "0",
+    tagType: "block",
+    nodes: [
+      {
+        node: "element",
+        tag: "video",
+        index: "0.0",
+        tagType: "block",
+        attr: {
+          controls: "controls",
+          width: "300",
+          height: "150",
+          src: "https://vd4.bdstatic.com/mda-mkm48rdgkc8webrb/sc/cae_h264_clips/1637550577273483133/mda-mkm48rdgkc8webrb.mp4?auth_key=1637562663-0-0-bfeaf33b14c26148cee480ccbbea98e1&bcevod_channel=searchbox_feed&pd=1&pt=3&abtest=&klogid=0063846881",
+        },
+        nodes: [
+          {
+            node: "text",
+            text: "\n",
+            textArray: [{ node: "text", text: "\n" }],
+            index: "0.0.0",
+          },
+          {
+            node: "element",
+            tag: "source",
+            index: "0.0.1",
+            attr: {
+              src: "https://vd4.bdstatic.com/mda-mkm48rdgkc8webrb/sc/cae_h264_clips/1637550577273483133/mda-mkm48rdgkc8webrb.mp4?auth_key=1637562663-0-0-bfeaf33b14c26148cee480ccbbea98e1&bcevod_channel=searchbox_feed&pd=1&pt=3&abtest=&klogid=0063846881",
+            },
+          },
+        ],
       },
     ],
   },

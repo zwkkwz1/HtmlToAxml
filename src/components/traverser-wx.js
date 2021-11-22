@@ -1,4 +1,4 @@
-export function traverser(ast, visitor = traverserMethods) {
+export function traverserWx(ast, visitor = traverserMethods) {
   // `traverseArray` 函数允许我们对数组中的每一个元素调用 `traverseNode` 函数。
   function traverseArray(array, parent) { // zwk ::: vue 也是给每一项用转换函数
     array.forEach(function(child, index) {
@@ -15,13 +15,20 @@ export function traverser(ast, visitor = traverserMethods) {
     }
     switch (node.type) {
       case 1:
+        switch (node.tag) {
+          case 'video':
+            traverserVideo(node, parent)
+            break
+          default:
+            break;
+        }
         traverseArray(node.children, node);
         break;
       case 2:
         // traverseArray(node.children, node);
         break;
       default:
-        throw new TypeError(node.type);
+        break;
     }
   }
   traverseArray(ast, {
@@ -65,34 +72,53 @@ export function setTagType(tag) {
   return tagType 
   // node.tagType = tagType
 }
+const videoChild = {
+  node: "text",
+  text: "\n",
+  textArray: [{ node: "text", text: "\n" }]
+}
+function traverserVideo(node, parent) {
+  console.log(node)
+  orderProps(node)
+  if (!node.attr.src && node.children && node.children.length > 0) {
+    node.children.some(child => {
+      if (child.tag === "source") {
+        node.attr.src = getSrc(child)
+        if (node.attr.src) {
+          return true
+        }
+      }
+    })
+  }
+  !node.children && (node.children = [])
+  node.children.push(videoChild)
+}
+function getSrc(node) {
+  let src = ''
+  if (node.props && node.props.length > 0) {
+    node.props.some(p => {
+      if (p.name === 'src' && p.value && p.value.type && p.value.type === 2) {
+        src = p.value.content
+        return src
+      }
+    })
+  }
+  return src
+}
 const traverserMethods = {
-  1: (node, parent, i) => {
-    node.tagType = setTagType(node.tag)
-    orderProps(node)
-    node.node = "element"
-    // if (!parent[chlidrenKen]) {
-    //   parent[chlidrenKen] = []
-    // }
-    // parent[chlidrenKen].push(r)
-  },
-  2: (node, parent, i) => {
-    node.node = "text"
-    node.text = node.content
-    node.textArray = [{ node: "text", text: node.content }]
-    insetIndex(node, parent, i)
-    orderProps(node)
-    // delete node.type
-    delete node.content
-    // if (!parent.nodes) {
-    //   parent.nodes = []
-    // }
-    // parent.nodes.push(node)
-    // if (!parent[chlidrenKen]) {
-    //   parent[chlidrenKen] = []
-    // }
-    // parent[chlidrenKen].push(r)
-  },
-  // TODO class变成style
+  // 1: (node, parent, i) => {
+  //   node.tagType = setTagType(node.tag)
+  //   orderProps(node)
+  //   node.node = "element"
+  // },
+  // 2: (node, parent, i) => {
+  //   node.node = "text"
+  //   node.text = node.content
+  //   node.textArray = [{ node: "text", text: node.content }]
+  //   insetIndex(node, parent, i)
+  //   orderProps(node)
+  //   delete node.content
+  // },
 }
 // 只支持click、style、id、class、href、 str属性
 export function orderProps(node) {
@@ -104,8 +130,14 @@ export function orderProps(node) {
         traverserProps(node, p, 'style')
       } else if (p.name === 'class') {
         traverserProps(node, p, 'class')
+      } else if (p.name === 'controls' || p.name === 'width' || p.name === 'height') {
+        !node.attr && (node.attr = {})
+        if (p.value && p.value.type && p.value.type === 2) {
+          node.attr[p.name] = p.value.content
+        }
       }
     })
+    delete node.props
   }
 }
 const propsToWx = {
