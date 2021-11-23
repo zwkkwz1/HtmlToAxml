@@ -1,6 +1,6 @@
 import { setTagType, orderProps } from './traverser'
 export const templateToNodesMap = {}
-let flagKey = '$Flag'
+let flagKey = 'Flag'
 export function baseParse(template: string) {
   const context = {
     source: template,
@@ -31,7 +31,7 @@ function parseUseCatch(context) {
   }
   console.log(source)
   Object.keys(c).forEach((temp, index) => {
-    context.replaceStr = context.replaceStr.replace(temp, flagKey + index)
+    context.replaceStr = context.replaceStr.replace(temp, '<' + flagKey + index + '/>')
   })
 }
 function catchTemplateToNodes(ast) {
@@ -276,6 +276,11 @@ function parseElement(context: any, ancestors: any[]) {
   //   return element;
   // }
   // Children.
+  if (element.tag.indexOf('Flag') === 0) {
+    // TODO, 这是我的占位符
+    console.log(element)
+    return element // ?? ancestors.push(element); 是否需要
+  }
   ancestors.push(element);
   // const mode = context.options.getTextMode(element, parent);
   // ----自己的代码 start-----
@@ -530,6 +535,11 @@ function parseTag(context: any, type: number, parent: any) {
   const start = getCursor(context);
   const match: any = /^<\/?([a-z][^\t\r\n\f />]*)/i.exec(context.source);
   const tag = match[1];
+  if (tag.indexOf('Flag') === 0) {
+    // TODO, 直接获取缓存的node并且返回
+    // 简化 advanceBy 、 advanceSpaces 过程
+    // return node
+  }
   // const ns = context.options.getNamespace(tag, parent);
   advanceBy(context, match[0].length); // 指针前进，offset、line、column值改变，遍历结束的source改变
   advanceSpaces(context);
