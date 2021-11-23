@@ -49,7 +49,7 @@ export function setTagType(tag) {
   let tagType = ''
   // 获取 tagType 先从常用的elements里面找，提高效率
   const c = Object.keys(commonElements).some(key => {
-    if (elements[key][tag]) {
+    if (commonElements[key][tag]) {
       tagType = key
       return true
     }

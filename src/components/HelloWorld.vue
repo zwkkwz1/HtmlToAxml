@@ -22,8 +22,8 @@
 import { reactive, ref } from "vue";
 import { traverser } from './traverser'
 import { traverserWx } from './traverser-wx'
-// import { parseChildren } from './parse'
-import { parseChildren } from './parse-wx'
+// import { parseChildren, baseParse } from './parse'
+import { baseParse, parseChildren, templateToNodesMap } from './parse-wx'
 export default {
   setup() {
     // 单选日期
@@ -189,12 +189,8 @@ export default {
             editValue.value = editor.getContent()
             console.log(editValue.value)
             nodes.orgstr = editValue.value
-            const v = parseChildren({
-              source: editValue.value,
-              options: {
-                isPreTag: (tag: string) => tag === 'pre',
-              }
-            }, 0 /* DATA */, [])
+            const v = baseParse(editValue.value)
+            // console.log(templateToNodesMap)
             nodes.value = v
             nodes.orgstrNodes = JSON.stringify(v)
             // traverser(v)

@@ -1,4 +1,67 @@
 import { setTagType, orderProps } from './traverser'
+export const templateToNodesMap = {}
+let flagKey = '$Flag'
+export function baseParse(template: string) {
+  const context = {
+    source: template,
+    c: templateToNodesMap,
+    replaceStr: template
+  }
+  parseUseCatch(context)
+  console.log(context.replaceStr)
+  const ast = parseChildren({
+    source: template,
+    c: templateToNodesMap,
+    originalSource: template,
+    column: 1,
+    line: 1,
+    offset: 0,
+    options: {
+      isPreTag: (tag: string) => tag === 'pre',
+    }
+  }, 0 /* DATA */, [])
+  catchTemplateToNodes(ast)
+  return ast
+}
+function parseUseCatch(context) {
+  let {c, source} = context
+  // 寻找在原文中没有出现的字符串当 flagKey
+  while (source.indexOf(flagKey) !== -1) {
+    flagKey += '_'
+  }
+  console.log(source)
+  Object.keys(c).forEach((temp, index) => {
+    context.replaceStr = context.replaceStr.replace(temp, flagKey + index)
+  })
+}
+function catchTemplateToNodes(ast) {
+  // `traverseArray` 函数允许我们对数组中的每一个元素调用 `traverseNode` 函数。
+  function traverseArray(array) { // zwk ::: vue 也是给每一项用转换函数
+    array.forEach(function(child) {
+      traverseNode(child);
+    });
+  }
+
+  // `traverseNode` 函数接受一个 `node` 和它的父结点 `parent` 作为参数，这个结点会被
+  // 传入到 visitor 中相应的处理函数那里。
+  function traverseNode(node) {
+    switch (node.type) {
+      case 1:
+        catchNode(node);
+        traverseArray(node.children);
+        break;
+      default:
+        break;
+    }
+  }
+  traverseArray(ast);
+}
+// TODO。 如果 templateToNodesMap 太大了 应该清楚一些内容
+function catchNode(node) {
+  if (node.loc && node.loc.source && !templateToNodesMap[node.loc.source]) {
+    templateToNodesMap[node.loc.source] = node
+  }
+}
 function isEnd(context: any, mode: any, ancestors: any) {
   const s = context.source;
   switch (mode) {
@@ -33,7 +96,7 @@ function last(xs: any[]) {
 }
 function advanceBy(context: any, numberOfCharacters: number) {
   const { source } = context;
-  // advancePositionWithMutation(context, source, numberOfCharacters);
+  advancePositionWithMutation(context, source, numberOfCharacters);
   context.source = source.slice(numberOfCharacters);
 }
 const voidTag = {"area":true,"base":true,"br":true,"col":true,"embed":true,"hr":true,"img":true,"input":true,"link":true,"meta":true,"param":true,"source":true,"track":true,"wbr":true}
@@ -244,7 +307,7 @@ function parseElement(context: any, ancestors: any[]) {
   //     }
   //   }
   // }
-  // element.loc = getSelection(context, element.loc.start);
+  element.loc = getSelection(context, element.loc.start);
   // if (isPreBoundary) {
   //   context.inPre = false;
   // }
@@ -451,20 +514,20 @@ function parseAttributeValue(context) {
     // loc: getSelection(context, start)
   };
 }
-// function getSelection(context, start, end?) {
-//   end = end || getCursor(context);
-//   return {
-//     start,
-//     end,
-//     source: context.originalSource.slice(start.offset, end.offset)
-//   };
-// }
+function getSelection(context, start, end?) {
+  end = end || getCursor(context);
+  return {
+    start,
+    end,
+    source: context.originalSource.slice(start.offset, end.offset)
+  };
+}
 function startsWith(source: string, searchString: string) {
   return source.startsWith(searchString);
 }
 function parseTag(context: any, type: number, parent: any) {
 // Tag open.
-  // const start = getCursor(context);
+  const start = getCursor(context);
   const match: any = /^<\/?([a-z][^\t\r\n\f />]*)/i.exec(context.source);
   const tag = match[1];
   // const ns = context.options.getNamespace(tag, parent);
@@ -516,7 +579,7 @@ function parseTag(context: any, type: number, parent: any) {
     props,
     isSelfClosing,
     children: [],
-    // loc: getSelection(context, start),
+    loc: getSelection(context, start),
     // codegenNode: undefined // to be created during transform phase
   }
   orderProps(node)
@@ -549,15 +612,15 @@ function parseText(context: any, mode: number) {
       endIndex = index; // 获取结束位置
     }
   }
-  // const start = getCursor(context);
+  const start = getCursor(context);
   const content = parseTextData(context, endIndex, mode); // 获取内容
   const node: any = {
     type: 2 /* TEXT */,
     text: content,
     content,
     node: 'text',
-    textArray: [{ node: "text", text: content }]
-    // loc: getSelection(context, start)
+    textArray: [{ node: "text", text: content }],
+    loc: getSelection(context, start)
   }
   // insetIndex(node, parent, i)
   orderProps(node)

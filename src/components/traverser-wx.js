@@ -45,7 +45,7 @@ const commonElements = {
   block: makeMap("a,p,button,h1,h2,h3,h4,h5,h6,li"),
 }
 const elements = {
-  empty: makeMap("o:p,area,base,basefont,br,col,frame,hr,img,input,link,meta,param,embed,command,keygen,source,track,wbr"),
+  empty: makeMap("o:p,area,base,basefont,br,col,frame,hr,img,link,meta,param,embed,command,keygen,source,track,wbr"),
   block: makeMap("address,article,applet,aside,audio,blockquote,canvas,center,dd,del,dir,div,dl,dt,fieldset,figcaption,figure,footer,form,frameset,header,hgroup,hr,iframe,ins,isindex,map,menu,noframes,noscript,object,ol,output,section,script,table,tbody,td,tfoot,th,thead,tr,ul,video"),
   inline: makeMap("ruby,rp,rt,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var,pre,code"),
   closeSelf: makeMap("colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr"),
@@ -56,7 +56,7 @@ export function setTagType(tag) {
   let tagType = ''
   // 获取 tagType 先从常用的elements里面找，提高效率
   const c = Object.keys(commonElements).some(key => {
-    if (elements[key][tag]) {
+    if (commonElements[key][tag]) {
       tagType = key
       return true
     }

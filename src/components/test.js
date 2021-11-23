@@ -15,6 +15,30 @@ var nodes = [
   },
 ];
 
+const aNodes1 = [
+  {
+    node: "element",
+    tag: "p",
+    index: "0",
+    tagType: "block",
+    attr: null,
+    classStr: null,
+    styleStr: null,
+    imgIndex: null,
+    from: null,
+    nodes: [
+      {
+        node: "text",
+        text: "123",
+        textArray: [{ node: "text", text: "123", tag: null, baseSrc: null }],
+        index: "0.0",
+        indexHandle: 1,
+      },
+    ],
+    indexHandle: 1,
+  },
+];
+
 var wxModes = [
   {
     node: "element",
@@ -366,6 +390,280 @@ const wxNodes5 = [
             },
           },
         ],
+      },
+    ],
+  },
+];
+
+const vNodes7 = [
+  {
+    type: 1,
+    tag: "ul",
+    node: "element",
+    tagType: "block",
+    props: [
+      { type: 6, name: "class", value: { type: 2, content: "w-e-todo" } },
+    ],
+    isSelfClosing: false,
+    children: [
+      {
+        type: 1,
+        tag: "li",
+        node: "element",
+        tagType: "closeSelf",
+        props: [],
+        isSelfClosing: false,
+        children: [
+          {
+            type: 1,
+            tag: "span",
+            node: "element",
+            tagType: "inline",
+            props: [
+              {
+                type: 6,
+                name: "contenteditable",
+                value: { type: 2, content: "false" },
+              },
+            ],
+            isSelfClosing: false,
+            children: [
+              {
+                type: 1,
+                tag: "input",
+                node: "element",
+                tagType: "empty",
+                props: [
+                  {
+                    type: 6,
+                    name: "type",
+                    value: { type: 2, content: "checkbox" },
+                  },
+                ],
+                isSelfClosing: true,
+                children: [],
+              },
+            ],
+          },
+          {
+            type: 1,
+            tag: "span",
+            node: "element",
+            tagType: "inline",
+            props: [
+              {
+                type: 6,
+                name: "style",
+                value: {
+                  type: 2,
+                  content: "background-color: rgb(194, 79, 74)",
+                },
+              },
+            ],
+            isSelfClosing: false,
+            children: [
+              {
+                type: 2,
+                text: "112312311",
+                content: "112312311",
+                node: "text",
+                textArray: [{ node: "text", text: "112312311" }],
+              },
+            ],
+            styleStr: "background-color: rgb(194, 79, 74)",
+          },
+        ],
+      },
+    ],
+    classStr: "w-e-todo",
+  },
+];
+
+const wxNodes7 = [
+  {
+    node: "element",
+    tag: "span",
+    index: "0",
+    tagType: "inline",
+    attr: { contenteditable: "false" },
+    nodes: [
+      {
+        node: "text",
+        text: "\n",
+        textArray: [{ node: "text", text: "\n" }],
+        index: "0.0",
+      },
+      {
+        node: "element",
+        tag: "input",
+        index: "0.1",
+        tagType: "inline",
+        attr: { type: "checkbox" },
+      },
+      {
+        node: "text",
+        text: "\n",
+        textArray: [{ node: "text", text: "\n" }],
+        index: "0.2",
+      },
+    ],
+  },
+  {
+    node: "text",
+    text: "\n",
+    textArray: [{ node: "text", text: "\n" }],
+    index: "1",
+  },
+  {
+    node: "element",
+    tag: "span",
+    index: "2",
+    tagType: "inline",
+    nodes: [
+      {
+        node: "text",
+        text: "112312311",
+        textArray: [{ node: "text", text: "112312311" }],
+        index: "2.0",
+      },
+    ],
+  },
+];
+
+const aNodes = [
+  {
+    node: "element",
+    tag: "ul",
+    index: "0",
+    tagType: "block",
+    attr: { class: "w-e-todo" },
+    classStr: "w-e-todo",
+    styleStr: null,
+    imgIndex: null,
+    from: null,
+    nodes: [
+      {
+        node: "element",
+        tag: "li",
+        index: "0.0",
+        tagType: "block",
+        attr: null,
+        classStr: null,
+        styleStr: null,
+        imgIndex: null,
+        from: null,
+        nodes: [
+          {
+            node: "element",
+            tag: "span",
+            index: "0.0.0",
+            tagType: "inline",
+            attr: { contenteditable: "false" },
+            classStr: null,
+            styleStr: null,
+            imgIndex: null,
+            from: null,
+            nodes: [
+              {
+                node: "element",
+                tag: "input",
+                index: "0.0.0.0",
+                tagType: "inline",
+                attr: { type: "checkbox" },
+                classStr: null,
+                styleStr: null,
+                imgIndex: null,
+                from: null,
+                indexHandle: 1,
+              },
+            ],
+            indexHandle: 1,
+          },
+          {
+            node: "element",
+            tag: "span",
+            index: "0.0.1",
+            tagType: "inline",
+            attr: { style: ["background-color:", "rgb(194,", "79,", "74);"] },
+            classStr: null,
+            styleStr: "background-color: rgb(194, 79, 74);",
+            imgIndex: null,
+            from: null,
+            nodes: [
+              {
+                node: "text",
+                text: "112312311",
+                textArray: [
+                  {
+                    node: "text",
+                    text: "112312311",
+                    tag: null,
+                    baseSrc: null,
+                  },
+                ],
+                index: "0.0.1.0",
+                indexHandle: 2,
+              },
+            ],
+            indexHandle: 1,
+          },
+        ],
+        indexHandle: 1,
+      },
+    ],
+    indexHandle: 1,
+  },
+]
+
+const nvNodes = [
+  {
+    type: 1,
+    tag: "p",
+    node: "element",
+    tagType: "closeSelf",
+    props: [],
+    isSelfClosing: false,
+    children: [
+      {
+        type: 2,
+        text: "~~~~~~~~~~~~editor-",
+        content: "~~~~~~~~~~~~editor-",
+        node: "text",
+        textArray: [{ node: "text", text: "~~~~~~~~~~~~editor-" }],
+      },
+    ],
+  },
+  {
+    type: 1,
+    tag: "p",
+    node: "element",
+    tagType: "closeSelf",
+    props: [],
+    isSelfClosing: false,
+    children: [
+      {
+        type: 2,
+        text: "123123",
+        content: "123123",
+        node: "text",
+        textArray: [{ node: "text", text: "123123" }],
+      },
+    ],
+  },
+  {
+    type: 1,
+    tag: "p",
+    node: "element",
+    tagType: "closeSelf",
+    props: [],
+    isSelfClosing: false,
+    children: [
+      {
+        type: 2,
+        text: "zwk~12132~~~~~~~~~~~~~",
+        content: "zwk~12132~~~~~~~~~~~~~",
+        node: "text",
+        textArray: [{ node: "text", text: "zwk~12132~~~~~~~~~~~~~" }],
       },
     ],
   },
