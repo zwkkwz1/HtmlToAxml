@@ -4,7 +4,7 @@
 
 富文本编译器使用：tinymce
 
-使用vue3部分编译源码。
+使用vue3编译源码 parse 部分的部分源码。
 
 在微信或者淘宝端需要使用 https://github.com/ianzhi/wxParse 的wxml生成页面
 
