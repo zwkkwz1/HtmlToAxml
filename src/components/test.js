@@ -668,3 +668,89 @@ const nvNodes = [
     ],
   },
 ];
+
+const newVNodes = [
+  {
+    type: 1,
+    tag: "p",
+    node: "element",
+    tagType: "block",
+    props: [],
+    isSelfClosing: true,
+    children: [
+      {
+        type: 2,
+        text: "222",
+        content: "222",
+        node: "text",
+        textArray: [{ node: "text", text: "222" }],
+        loc: {
+          start: { column: 4, line: 1, offset: 3 },
+          end: { column: 7, line: 1, offset: 6 },
+          source: "222",
+        },
+      },
+    ],
+    loc: {
+      start: { column: 1, line: 1, offset: 0 },
+      end: { column: 11, line: 1, offset: 10 },
+      source: "<p>222</p>",
+    },
+    isFlag: "Flag",
+  },
+  {
+    type: 1,
+    tag: "p",
+    node: "element",
+    tagType: "block",
+    props: [],
+    isSelfClosing: true,
+    children: [
+      {
+        type: 2,
+        text: "123",
+        content: "123",
+        node: "text",
+        textArray: [{ node: "text", text: "123" }],
+        loc: {
+          start: { column: 4, line: 2, offset: 30 },
+          end: { column: 7, line: 2, offset: 33 },
+          source: "123",
+        },
+      },
+    ],
+    loc: {
+      start: { column: 1, line: 2, offset: 27 },
+      end: { column: 11, line: 2, offset: 37 },
+      source: "<p>123</p>",
+    },
+    isFlag: "Flag",
+  },
+  {
+    type: 1,
+    tag: "div",
+    node: "element",
+    tagType: "block",
+    props: [],
+    isSelfClosing: false,
+    children: [
+      {
+        type: 2,
+        text: "1",
+        content: "1",
+        node: "text",
+        textArray: [{ node: "text", text: "1" }],
+        loc: {
+          start: { column: 6, line: 3, offset: 23 },
+          end: { column: 7, line: 3, offset: 24 },
+          source: "1",
+        },
+      },
+    ],
+    loc: {
+      start: { column: 1, line: 3, offset: 18 },
+      end: { column: 13, line: 3, offset: 30 },
+      source: "<div>1</div>",
+    },
+  },
+];

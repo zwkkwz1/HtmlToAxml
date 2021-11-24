@@ -8,6 +8,7 @@ export function baseParse(template: string) {
     replaceStr: template
   }
   parseUseCatch(context)
+  template = context.replaceStr
   console.log(context.replaceStr)
   const ast = parseChildren({
     source: template,
@@ -94,7 +95,7 @@ function isEnd(context: any, mode: any, ancestors: any) {
 function last(xs: any[]) {
   return xs[xs.length - 1];
 }
-function advanceBy(context: any, numberOfCharacters: number) {
+function advanceBy(context: any, numberOfCharacters?: number) {
   const { source } = context;
   advancePositionWithMutation(context, source, numberOfCharacters);
   context.source = source.slice(numberOfCharacters);
@@ -276,7 +277,7 @@ function parseElement(context: any, ancestors: any[]) {
   //   return element;
   // }
   // Children.
-  if (element.tag.indexOf('Flag') === 0) {
+  if (element.isFlag === flagKey) {
     // TODO, 这是我的占位符
     console.log(element)
     return element // ?? ancestors.push(element); 是否需要
@@ -535,10 +536,20 @@ function parseTag(context: any, type: number, parent: any) {
   const start = getCursor(context);
   const match: any = /^<\/?([a-z][^\t\r\n\f />]*)/i.exec(context.source);
   const tag = match[1];
-  if (tag.indexOf('Flag') === 0) {
+  if (tag.indexOf(flagKey) === 0) {
     // TODO, 直接获取缓存的node并且返回
     // 简化 advanceBy 、 advanceSpaces 过程
     // return node
+    advanceBy(context, tag.length + 3)
+    const i = tag.match(/\d+/g)[0]
+    let c = context.c
+    let node
+    if (c && typeof c === 'object' && Object.keys(c)[i]) {
+      node = c[Object.keys(c)[i]]
+    }
+    // node.isSelfClosing = true
+    node.isFlag = flagKey
+    return node
   }
   // const ns = context.options.getNamespace(tag, parent);
   advanceBy(context, match[0].length); // 指针前进，offset、line、column值改变，遍历结束的source改变

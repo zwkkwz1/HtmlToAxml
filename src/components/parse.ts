@@ -1,8 +1,17 @@
 export const templateToNodesMap = {}
+let flagKey = 'Flag'
 export function baseParse(template: string) {
-
+  const context = {
+    source: template,
+    c: templateToNodesMap,
+    replaceStr: template
+  }
+  parseUseCatch(context)
+  template = context.replaceStr
+  console.log(context.replaceStr)
   const ast = parseChildren({
     source: template,
+    c: templateToNodesMap,
     originalSource: template,
     column: 1,
     line: 1,
@@ -13,6 +22,17 @@ export function baseParse(template: string) {
   }, 0 /* DATA */, [])
   catchTemplateToNodes(ast)
   return ast
+}
+function parseUseCatch(context) {
+  let {c, source} = context
+  // 寻找在原文中没有出现的字符串当 flagKey
+  while (source.indexOf(flagKey) !== -1) {
+    flagKey += '_'
+  }
+  console.log(source)
+  Object.keys(c).forEach((temp, index) => {
+    context.replaceStr = context.replaceStr.replace(temp, '<' + flagKey + index + '/>')
+  })
 }
 function catchTemplateToNodes(ast) {
   // `traverseArray` 函数允许我们对数组中的每一个元素调用 `traverseNode` 函数。
@@ -256,6 +276,11 @@ function parseElement(context: any, ancestors: any[]) {
   //   return element;
   // }
   // Children.
+  if (element.isFlag === flagKey) {
+    // TODO, 这是我的占位符
+    console.log(element)
+    return element // ?? ancestors.push(element); 是否需要
+  }
   ancestors.push(element);
   // const mode = context.options.getTextMode(element, parent);
   // ----自己的代码 start-----
@@ -510,6 +535,21 @@ function parseTag(context: any, type: number, parent: any) {
   const start = getCursor(context);
   const match: any = /^<\/?([a-z][^\t\r\n\f />]*)/i.exec(context.source);
   const tag = match[1];
+  if (tag.indexOf(flagKey) === 0) {
+    // TODO, 直接获取缓存的node并且返回
+    // 简化 advanceBy 、 advanceSpaces 过程
+    // return node
+    advanceBy(context, tag.length + 3)
+    const i = tag.match(/\d+/g)[0]
+    let c = context.c
+    let node
+    if (c && typeof c === 'object' && Object.keys(c)[i]) {
+      node = c[Object.keys(c)[i]]
+    }
+    // node.isSelfClosing = true
+    node.isFlag = flagKey
+    return node
+  }
   // const ns = context.options.getNamespace(tag, parent);
   advanceBy(context, match[0].length); // 指针前进，offset、line、column值改变，遍历结束的source改变
   advanceSpaces(context);

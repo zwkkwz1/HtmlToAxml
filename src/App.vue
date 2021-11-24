@@ -15,7 +15,7 @@ const nodes = reactive({
   traverserWxNodes: ''
 })
 const parseHtml = () => {
-  const v = baseParse(editValue.value)
+  const v = baseParse(orgHtml.value)
   nodes.value = v
   nodes.orgstrNodes = JSON.stringify(v)
   // traverser(v)
