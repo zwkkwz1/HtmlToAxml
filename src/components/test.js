@@ -754,3 +754,85 @@ const newVNodes = [
     },
   },
 ];
+
+const vN = [
+  {
+    type: 1,
+    tag: "p",
+    node: "element",
+    tagType: "block",
+    props: [],
+    isSelfClosing: false,
+    children: [
+      {
+        type: 1,
+        tag: "font",
+        node: "element",
+        tagType: "inline",
+        props: [{ type: 6, name: "size", value: { type: 2, content: "7" } }],
+        isSelfClosing: false,
+        children: [
+          {
+            type: 2,
+            text: "123123",
+            content: "123123",
+            node: "text",
+            textArray: [{ node: "text", text: "123123" }],
+            loc: {
+              start: { column: 19, line: 1, offset: 18 },
+              end: { column: 25, line: 1, offset: 24 },
+              source: "123123",
+            },
+          },
+        ],
+        loc: {
+          start: { column: 4, line: 1, offset: 3 },
+          end: { column: 32, line: 1, offset: 31 },
+          source: '<font size="7">123123</font>',
+        },
+      },
+    ],
+    loc: {
+      start: { column: 1, line: 1, offset: 0 },
+      end: { column: 36, line: 1, offset: 35 },
+      source: '<p><font size="7">123123</font></p>',
+    },
+  },
+];
+
+const tbNode = [
+  {
+    node: "element",
+    tag: "p",
+    index: "0",
+    tagType: "block",
+    attr: { style: "line-height:3;" },
+    classStr: null,
+    styleStr: "line-height:3;",
+    imgIndex: null,
+    from: null,
+    nodes: [
+      {
+        node: "element",
+        tag: "font",
+        index: "0.0",
+        tagType: "inline",
+        attr: { size: "5", style: ["font-size", "x-large"] },
+        classStr: null,
+        styleStr: "font-size: x-large;",
+        imgIndex: null,
+        from: null,
+        nodes: [
+          {
+            node: "text",
+            text: "12312",
+            textArray: [
+              { node: "text", text: "12312", tag: null, baseSrc: null },
+            ],
+            index: "0.0.0",
+          },
+        ],
+      },
+    ],
+  }
+];

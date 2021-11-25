@@ -1,9 +1,9 @@
 <script setup>
 import { reactive, ref } from "vue";
 import { traverser } from './components/traverser'
-import { traverserWx } from './components/traverser-wx'
+import { traverserWx, traverserCatchNode } from './components/traverser-wx'
 // import { parseChildren, baseParse } from './parse'
-import { parseChildren, baseParse } from './components/parse-wx'
+import { parseChildren, baseParse, needTraverser } from './components/parse-wx'
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import HelloWorld from "./components/HelloWorld.vue";
@@ -17,9 +17,11 @@ const nodes = reactive({
 const parseHtml = () => {
   const v = baseParse(orgHtml.value)
   nodes.value = v
-  nodes.orgstrNodes = JSON.stringify(v)
+  // nodes.orgstrNodes = JSON.stringify(v)
   // traverser(v)
-  traverserWx(v)
+  // traverserWx(v)
+  // traverserCatchNode(needTraverser)
+  // needTraverser = []
   nodes.traverserWxNodes = JSON.stringify(v)
 }
 </script>
@@ -43,7 +45,7 @@ const parseHtml = () => {
       <span style="background-color: rgb(194, 79, 74)">112312311</span>
     </li>
   </ul> -->
-  <!-- <wangeditor /> -->
+  <wangeditor />
 </template>
 
 <style>

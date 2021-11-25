@@ -1,4 +1,5 @@
-import { setTagType, orderProps } from './traverser'
+import { setTagType, orderProps, traverserCatchNode } from './traverser-wx'
+export let needTraverser = []
 export const templateToNodesMap = {}
 let flagKey = 'Flag'
 export function baseParse(template: string) {
@@ -22,6 +23,9 @@ export function baseParse(template: string) {
     }
   }, 0 /* DATA */, [])
   catchTemplateToNodes(ast)
+  
+  traverserCatchNode(needTraverser)
+  needTraverser = []
   return ast
 }
 function parseUseCatch(context) {
@@ -58,6 +62,7 @@ function catchTemplateToNodes(ast) {
   traverseArray(ast);
 }
 // TODO。 如果 templateToNodesMap 太大了 应该清楚一些内容
+// TODO: templateToNodesMap 用浏览器空余时间排个序。 key大的排前面
 function catchNode(node) {
   if (node.loc && node.loc.source && !templateToNodesMap[node.loc.source]) {
     templateToNodesMap[node.loc.source] = node
@@ -531,6 +536,7 @@ function getSelection(context, start, end?) {
 function startsWith(source: string, searchString: string) {
   return source.startsWith(searchString);
 }
+
 function parseTag(context: any, type: number, parent: any) {
 // Tag open.
   const start = getCursor(context);
@@ -604,6 +610,9 @@ function parseTag(context: any, type: number, parent: any) {
     // codegenNode: undefined // to be created during transform phase
   }
   orderProps(node)
+  if (tag === 'font' || tag === 'video') {
+    needTraverser.push(node)
+  }
   // if (!context.inVPre) {
   //   if (tag === 'slot') {
   //     tagType = 2 /* SLOT */;

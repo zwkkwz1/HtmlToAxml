@@ -21,9 +21,10 @@
 <script lang="ts">
 import { reactive, ref } from "vue";
 import { traverser } from './traverser'
-import { traverserWx } from './traverser-wx'
+import { traverserCatchNode, traverserWx } from './traverser-wx'
 // import { parseChildren, baseParse } from './parse'
-import { baseParse, parseChildren, templateToNodesMap } from './parse-wx'
+import { baseParse, needTraverser, templateToNodesMap } from './parse-wx'
+import { html } from './h'
 export default {
   setup() {
     // 单选日期
@@ -183,18 +184,22 @@ export default {
         nonbreaking_force_tab: true,
         convert_urls: false,
         init_instance_callback: (editor: any) => {
-          editor.setContent('~~~~~~~~~~~~editor-zwk~12132~~~~~~~~~~~~~')
+          editor.setContent()
           editor.on('NodeChange Change KeyUp SetContent', () => {
             // console.log('NodeChange Change KeyUp SetContent')
             editValue.value = editor.getContent()
             console.log(editValue.value)
             nodes.orgstr = editValue.value
+            let st = new Date().getTime()
             const v = baseParse(editValue.value)
+            let et = new Date().getTime()
+            console.log('时间', et - st)
             // console.log(templateToNodesMap)
             nodes.value = v
-            nodes.orgstrNodes = JSON.stringify(v)
+            // nodes.orgstrNodes = JSON.stringify(v)
             // traverser(v)
-            traverserWx(v)
+            // traverserWx(v)
+            // traverserCatchNode(needTraverser)
             nodes.strNodes = JSON.stringify(v)
             nodes.jsonNodes = jsonShowFn(JSON.stringify(v))
             document.getElementById('jsonShow').innerHTML = nodes.jsonNodes

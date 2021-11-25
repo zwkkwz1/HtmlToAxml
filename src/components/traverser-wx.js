@@ -1,3 +1,18 @@
+export function traverserCatchNode(nodes) {
+  nodes.forEach(node => {
+    switch (node.tag) {
+      case 'video':
+        traverserVideo(node, parent)
+        break
+      case 'font':
+        traverserFont(node)
+        break
+      default:
+        break;
+    }
+  })
+}
+// 暂时启用
 export function traverserWx(ast, visitor = traverserMethods) {
   // `traverseArray` 函数允许我们对数组中的每一个元素调用 `traverseNode` 函数。
   function traverseArray(array, parent) { // zwk ::: vue 也是给每一项用转换函数
@@ -93,6 +108,23 @@ function traverserVideo(node, parent) {
   !node.children && (node.children = [])
   node.children.push(videoChild)
 }
+function traverserFont(node) {
+  var fontSize = ['x-small', 'small', 'medium', 'large', 'x-large', 'xx-large', '-webkit-xxx-large'];
+  var styleAttrs = {
+    'color': 'color',
+    'face': 'font-family',
+    'size': 'font-size'
+  }
+  !node.styleStr && (node.styleStr = '')
+  for (var key in styleAttrs) {
+    if (node.attr[key]) {
+      var value = key === 'size' ? fontSize[node.attr[key] - 1] : node.attr[key];
+      // node.attr.style.push(styleAttrs[key]);
+      // node.attr.style.push(value);
+      node.styleStr += styleAttrs[key] + ': ' + value + ';';
+    }
+}
+}
 function getSrc(node) {
   let src = ''
   if (node.props && node.props.length > 0) {
@@ -131,6 +163,11 @@ export function orderProps(node) {
       } else if (p.name === 'class') {
         traverserProps(node, p, 'class')
       } else if (p.name === 'controls' || p.name === 'width' || p.name === 'height') {
+        !node.attr && (node.attr = {})
+        if (p.value && p.value.type && p.value.type === 2) {
+          node.attr[p.name] = p.value.content
+        }
+      } else {
         !node.attr && (node.attr = {})
         if (p.value && p.value.type && p.value.type === 2) {
           node.attr[p.name] = p.value.content
